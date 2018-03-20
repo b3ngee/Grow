@@ -8,9 +8,9 @@ class Dropdown extends Component {
     render() {
         const { label, name, data, onSelect } = this.props;
         
-        const options = data.map(d => {
+        const options = data.map((d, index) => {
             return (
-                <option value={d}>{d}</option>
+                <option key={index} value={d}>{d}</option>
             );
         });
         return (

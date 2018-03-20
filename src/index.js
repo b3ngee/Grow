@@ -6,6 +6,7 @@ import { createStore, applyMiddleware } from 'redux';
 
 import reducers from './reducers';
 
+import SummaryReport from './components/SummaryReport';
 import TransactionHistory from './components/TransactionHistory';
 
 const createStoreWithMiddleware = applyMiddleware()(createStore);
@@ -15,6 +16,7 @@ ReactDOM.render(
     <div>
       <BrowserRouter>
         <Switch>
+          <Route exact path="/summary" component={SummaryReport} />
           <Route exact path="/" component={TransactionHistory} />
         </Switch>
       </BrowserRouter>

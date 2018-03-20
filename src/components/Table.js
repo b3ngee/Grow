@@ -6,13 +6,13 @@ class Table extends Component {
     }
 
     render() {
-        const columns = this.props.columns.map(c => {
-            return <th>{c}</th>
+        const columns = this.props.columns.map((c, index) => {
+            return <th key={index}>{c}</th>
         });
         
-        const dataRows = this.props.rows.map(r => {
+        const dataRows = this.props.rows.map((r, index) => {
             return (
-                <tr>
+                <tr key={index}>
                     <td>{r.Date}</td>
                     <td>{r.AccountType}</td>
                     <td>{r.Description}</td>
@@ -23,8 +23,6 @@ class Table extends Component {
                 </tr>
             );
         });
-
-        console.log("rows: ", this.props.rows);
 
         return (
             <div className="table">

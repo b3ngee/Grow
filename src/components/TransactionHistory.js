@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import Table from './Table';
 import Dropdown from './Dropdown';
 import Button from './Button';
-import { ACTION, COLUMNS } from '../constants';
+import { ACTION, SORT_ORDER, COLUMNS } from '../constants';
 
 class TransactionHistory extends Component {
     constructor(props) {
@@ -16,12 +17,14 @@ class TransactionHistory extends Component {
             transactionData: {},
             filterAccount: "",
             filterCategory: "",
+            sortByDate: SORT_ORDER[0],
         }
 
         this.parseTransactions = this.parseTransactions.bind(this);
         this.getActionType = this.getActionType.bind(this);
         this.onSelect = this.onSelect.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.sortTransactions = this.sortTransactions.bind(this);
     }
 
     componentDidMount() {
@@ -91,7 +94,27 @@ class TransactionHistory extends Component {
         this.setState({ transactions : this.state.allTransactions });
     }
 
+    sortTransactions(e) {
+        e.preventDefault();
+
+        if (e.target.name === SORT_ORDER[0]) {
+            const sortNewToOld = this.state.transactions.sort((a, b) => {
+                return new Date(b.Date).getTime() - new Date(a.Date).getTime();
+            });
+
+            this.setState({ transactions: sortNewToOld, sortByDate: SORT_ORDER[1] });
+        } else {
+            const sortOldToNew = this.state.transactions.sort((a, b) => {
+                return new Date(a.Date).getTime() - new Date(b.Date).getTime();
+            });
+
+            this.setState({ transactions: sortOldToNew, sortByDate: SORT_ORDER[0] });
+        }
+    }
+
     render() {
+        const { accounts, categories, transactions, sortByDate } = this.state;
+
         const accountNames = this.state.accounts.map(a => {
             return a.accountName;
         });
@@ -107,17 +130,28 @@ class TransactionHistory extends Component {
                 <Dropdown
                     label="Filter by Category:"
                     name="filterCategory"
-                    data={this.state.categories}
+                    data={categories}
                     onSelect={this.onSelect}
+                />
+                <Button 
+                    style="btn btn-success"
+                    name={sortByDate}
+                    onClick={this.sortTransactions}
                 />
                 <Button 
                     style="btn btn-default"
                     name="Reset Filters"
                     onClick={this.onClick}
                 />
+                <Link to={{pathname: "/summary", state: {transactions, accounts}}}>
+                    <Button 
+                        style="btn btn-danger"
+                        name="Create Summary"
+                    />
+                </Link>
                 <Table
                     columns={COLUMNS}
-                    rows={this.state.transactions}
+                    rows={transactions}
                 />
             </div>
         );
