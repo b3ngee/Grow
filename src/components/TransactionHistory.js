@@ -15,8 +15,6 @@ class TransactionHistory extends Component {
 
         this.parseTransactions = this.parseTransactions.bind(this);
         this.getActionType = this.getActionType.bind(this);
-        this.formatCateogry = this.formatCateogry.bind(this);
-        this.formatAmount = this.formatAmount.bind(this);
     }
 
     componentDidMount() {
@@ -44,14 +42,6 @@ class TransactionHistory extends Component {
         return ACTION[1];
     }
 
-    formatCateogry(category) {
-        return category.replace("_", " ");
-    }
-
-    formatAmount(amount) {
-        return amount < 0 ? amount * -1 : amount;
-    }
-
     parseTransactions(accs, txs) {
         const transactions = txs.map(tx => {
             const accountName = accs.filter(a => {
@@ -66,12 +56,12 @@ class TransactionHistory extends Component {
 
             return {
                 "Date": tx.transactionDate,
-                "Account Type": accountName,
+                "AccountType": accountName,
                 "Description": tx.description,
                 "Category": tx.category,
                 "Action": action,
                 "Amount": tx.amount,
-                "Total Amount": tx.runningBalance,
+                "TotalAmount": tx.runningBalance,
             }
         });
 
@@ -79,7 +69,6 @@ class TransactionHistory extends Component {
     }
 
     render() {
-        console.log("tx: ", this.state.transactions);
         return (
             <div>
                 <Table
