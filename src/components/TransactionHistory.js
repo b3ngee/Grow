@@ -14,7 +14,7 @@ class TransactionHistory extends Component {
             accounts: [],
             categories: [],
             transactions: [],
-            allTransactions: [], // never changes
+            allTransactions: [],
             transactionData: {},
             filterAccount: "",
             filterCategory: "",
@@ -139,17 +139,20 @@ class TransactionHistory extends Component {
                     onSelect={this.assignFilter}
                 />
                 <Button 
+                    type="submit"
                     style="btn btn-success"
                     name={sortByDate}
                     onClick={this.sortTransactions}
                 />
                 <Button
-                    style="btn btn-success"
+                    type="submit"
+                    style="btn btn-warning"
                     name="Apply Filter(s)"
                     onClick={this.applyFilter}
                 />
                 <Button 
-                    style="btn btn-default"
+                    type="submit"
+                    style="btn btn-danger"
                     name="Reset Filters"
                     onClick={this.onClick}
                 />

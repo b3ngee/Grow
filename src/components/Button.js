@@ -8,7 +8,7 @@ class Button extends Component {
     render() {
         const { style, name, onClick } = this.props;
         return (
-            <button className={style} onClick={onClick} name={name}>
+            <button type="submit" className={style} onClick={onClick} name={name}>
                 {name}
             </button>
         );
