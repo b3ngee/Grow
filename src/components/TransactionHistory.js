@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Table from './Table';
 import Dropdown from './Dropdown';
+import Button from './Button';
 import { ACTION, COLUMNS } from '../constants';
 
 class TransactionHistory extends Component {
@@ -11,6 +12,7 @@ class TransactionHistory extends Component {
             accounts: [],
             categories: [],
             transactions: [],
+            allTransactions: [], // never changes
             transactionData: {},
             filterAccount: "",
             filterCategory: "",
@@ -19,6 +21,7 @@ class TransactionHistory extends Component {
         this.parseTransactions = this.parseTransactions.bind(this);
         this.getActionType = this.getActionType.bind(this);
         this.onSelect = this.onSelect.bind(this);
+        this.onClick = this.onClick.bind(this);
     }
 
     componentDidMount() {
@@ -31,7 +34,7 @@ class TransactionHistory extends Component {
                 const data = response.data;
                 const transactions = this.parseTransactions(data.accounts, data.transactionData.transactions);
 
-                this.setState({ accounts: data.accounts, categories: data.categories, transactions: transactions, transactionData: data.transactionData });
+                this.setState({ accounts: data.accounts, categories: data.categories, transactions: transactions, allTransactions: transactions, transactionData: data.transactionData });
             }
         }).catch(error => {
             // error handling
@@ -69,15 +72,23 @@ class TransactionHistory extends Component {
     }
 
     onSelect(e) {
+        e.preventDefault();
+
         const filter = e.target.name;
+        const value = e.target.value;
 
         if (filter === "filterAccount") {
-            const filteredByAccount = this.state.transactions.filter(tx => tx.AccountType === e.target.value);
+            const filteredByAccount = this.state.transactions.filter(tx => tx.AccountType === value);
             this.setState({ transactions: filteredByAccount });
         } else {
-            const filteredByCategory = this.state.transactions.filter(tx => tx.Category === e.target.value);
+            const filteredByCategory = this.state.transactions.filter(tx => tx.Category === value);
             this.setState({ transactions: filteredByCategory });
         }
+    }
+
+    onClick(e) {
+        e.preventDefault();
+        this.setState({ transactions : this.state.allTransactions });
     }
 
     render() {
@@ -88,16 +99,21 @@ class TransactionHistory extends Component {
         return (
             <div>
                 <Dropdown
-                    label="Filter by Account: "
+                    label="Filter by Account:"
                     name="filterAccount"
                     data={accountNames}
                     onSelect={this.onSelect}
                 />
                 <Dropdown
-                    label="Filter by Category: "
+                    label="Filter by Category:"
                     name="filterCategory"
                     data={this.state.categories}
                     onSelect={this.onSelect}
+                />
+                <Button 
+                    style="btn btn-default"
+                    name="Reset Filters"
+                    onClick={this.onClick}
                 />
                 <Table
                     columns={COLUMNS}
