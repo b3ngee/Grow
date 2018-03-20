@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Table from './Table';
+import Dropdown from './Dropdown';
 import { ACTION, COLUMNS } from '../constants';
 
 class TransactionHistory extends Component {
@@ -11,10 +12,13 @@ class TransactionHistory extends Component {
             categories: [],
             transactions: [],
             transactionData: {},
+            filterAccount: "",
+            filterCategory: "",
         }
 
         this.parseTransactions = this.parseTransactions.bind(this);
         this.getActionType = this.getActionType.bind(this);
+        this.onSelect = this.onSelect.bind(this);
     }
 
     componentDidMount() {
@@ -50,10 +54,6 @@ class TransactionHistory extends Component {
 
             const action = this.getActionType(tx.amount);
 
-            // const category = this.formatCateogry(tx.category);
-
-            // const amount = this.formatAmount(tx.amount);
-
             return {
                 "Date": tx.transactionDate,
                 "AccountType": accountName,
@@ -68,9 +68,37 @@ class TransactionHistory extends Component {
         return transactions;
     }
 
+    onSelect(e) {
+        const filter = e.target.name;
+
+        if (filter === "filterAccount") {
+            const filteredByAccount = this.state.transactions.filter(tx => tx.AccountType === e.target.value);
+            this.setState({ transactions: filteredByAccount });
+        } else {
+            const filteredByCategory = this.state.transactions.filter(tx => tx.Category === e.target.value);
+            this.setState({ transactions: filteredByCategory });
+        }
+    }
+
     render() {
+        const accountNames = this.state.accounts.map(a => {
+            return a.accountName;
+        });
+
         return (
             <div>
+                <Dropdown
+                    label="Filter by Account: "
+                    name="filterAccount"
+                    data={accountNames}
+                    onSelect={this.onSelect}
+                />
+                <Dropdown
+                    label="Filter by Category: "
+                    name="filterCategory"
+                    data={this.state.categories}
+                    onSelect={this.onSelect}
+                />
                 <Table
                     columns={COLUMNS}
                     rows={this.state.transactions}
