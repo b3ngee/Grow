@@ -4,6 +4,7 @@ import axios from 'axios';
 import Table from './Table';
 import Dropdown from './Dropdown';
 import Button from './Button';
+import SummaryReport from './SummaryReport';
 import { ACTION, SORT_ORDER, COLUMNS } from '../constants';
 
 class TransactionHistory extends Component {
@@ -20,10 +21,9 @@ class TransactionHistory extends Component {
             sortByDate: SORT_ORDER[0],
         }
 
-        this.parseTransactions = this.parseTransactions.bind(this);
-        this.getActionType = this.getActionType.bind(this);
-        this.onSelect = this.onSelect.bind(this);
         this.onClick = this.onClick.bind(this);
+        this.applyFilter = this.applyFilter.bind(this);
+        this.assignFilter = this.assignFilter.bind(this);
         this.sortTransactions = this.sortTransactions.bind(this);
     }
 
@@ -40,7 +40,7 @@ class TransactionHistory extends Component {
                 this.setState({ accounts: data.accounts, categories: data.categories, transactions: transactions, allTransactions: transactions, transactionData: data.transactionData });
             }
         }).catch(error => {
-            // error handling
+            console.log(error.response.data.message);
         })
     }
 
@@ -56,11 +56,12 @@ class TransactionHistory extends Component {
         const transactions = txs.map(tx => {
             const accountName = accs.filter(a => {
                 return a.accountId === tx.accountId;
-            })[0].accountName;
+            })[0].accountName.toLowerCase();
 
             const action = this.getActionType(tx.amount);
-
+            
             return {
+                "TxID": tx.transactionId,
                 "Date": tx.transactionDate,
                 "AccountType": accountName,
                 "Description": tx.description,
@@ -74,19 +75,20 @@ class TransactionHistory extends Component {
         return transactions;
     }
 
-    onSelect(e) {
+    assignFilter(e) {
         e.preventDefault();
+        this.setState({ [e.target.name]: e.target.value });
+    }
 
-        const filter = e.target.name;
-        const value = e.target.value;
-
-        if (filter === "filterAccount") {
-            const filteredByAccount = this.state.transactions.filter(tx => tx.AccountType === value);
-            this.setState({ transactions: filteredByAccount });
-        } else {
-            const filteredByCategory = this.state.transactions.filter(tx => tx.Category === value);
-            this.setState({ transactions: filteredByCategory });
-        }
+    applyFilter(e) {
+        e.preventDefault();
+    
+        const { filterAccount, filterCategory } = this.state;
+        
+        const filteredTx = this.state.allTransactions.filter(tx => { return filterAccount !== "" ? tx.AccountType === filterAccount : tx; })
+            .filter(ftx => { return filterCategory !== "" ? ftx.Category === filterCategory : ftx; });
+        
+        this.setState({ transactions: filteredTx });
     }
 
     onClick(e) {
@@ -116,40 +118,43 @@ class TransactionHistory extends Component {
         const { accounts, categories, transactions, sortByDate } = this.state;
 
         const accountNames = this.state.accounts.map(a => {
-            return a.accountName;
+            return a.accountName.toLowerCase();
         });
 
         return (
             <div>
+                <SummaryReport
+                    accounts={accounts}
+                />
                 <Dropdown
                     label="Filter by Account:"
                     name="filterAccount"
                     data={accountNames}
-                    onSelect={this.onSelect}
+                    onSelect={this.assignFilter}
                 />
                 <Dropdown
                     label="Filter by Category:"
                     name="filterCategory"
                     data={categories}
-                    onSelect={this.onSelect}
+                    onSelect={this.assignFilter}
                 />
                 <Button 
                     style="btn btn-success"
                     name={sortByDate}
                     onClick={this.sortTransactions}
                 />
+                <Button
+                    style="btn btn-success"
+                    name="Apply Filter(s)"
+                    onClick={this.applyFilter}
+                />
                 <Button 
                     style="btn btn-default"
                     name="Reset Filters"
                     onClick={this.onClick}
                 />
-                <Link to={{pathname: "/summary", state: {transactions, accounts}}}>
-                    <Button 
-                        style="btn btn-danger"
-                        name="Create Summary"
-                    />
-                </Link>
                 <Table
+                    label="Transaction History"
                     columns={COLUMNS}
                     rows={transactions}
                 />

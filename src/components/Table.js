@@ -25,8 +25,9 @@ class Table extends Component {
         });
 
         return (
-            <div className="table">
-                <table>
+            <div>
+                <h4>{this.props.label}</h4>
+                <table className="table">
                     <tbody>
                         <tr>{columns}</tr>
                         {dataRows}
